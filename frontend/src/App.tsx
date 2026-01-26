@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { useNews } from "./hooks/useNews";
 import type { NewsQuery } from "./types/news";
+import NewsListItem from "./components/NewsListItem";
+import "./App.css";
 
 export default function App() {
   const [query, setQuery] = useState<NewsQuery>({ bucket: "lapland" });
   const { data, error, loading } = useNews(query);
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: 16, fontFamily: "system-ui" }}>
+    <div className="app">
       <h1>Lapland News</h1>
 
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+      <div>
         <button onClick={() => setQuery({})}>All</button>
         <button onClick={() => setQuery({ bucket: "lapland" })}>Lapland</button>
         <button onClick={() => setQuery({ source: "yle_lappi" })}>Yle Lappi</button>
@@ -18,11 +20,11 @@ export default function App() {
       </div>
 
       {loading && <p>Loading…</p>}
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      {error && <p>{error}</p>}
 
-      {data && (
+      {!loading && data && (
         <>
-          <p style={{ opacity: 0.7 }}>
+          <p>
             Updated: {data.fetchedAt} • Items: {data.itemsCount} • Sources: {data.sourcesCount}
           </p>
 
@@ -33,19 +35,11 @@ export default function App() {
             </details>
           )}
 
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {data.items.slice(0, 30).map((item) => (
-              <li key={item.id} style={{ padding: "10px 0", borderBottom: "1px solid #ddd" }}>
-                <a href={item.url} target="_blank" rel="noreferrer" style={{ fontWeight: 600 }}>
-                  {item.title}
-                </a>
-
-                <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>
-                  {item.summary && <p>{item.summary}</p>}
-                  {item.publishedAt ? new Date(item.publishedAt).toLocaleString() : "—"} •{" "}
-                  {item.sources.map((s) => s.name).join(", ")}
-                </div>
-              </li>
+          <ul className="newsList">
+            {data.items.map((item) => (
+              <li className="newsList__li" key={item.id}>
+                <NewsListItem key={item.id} Item={item} />
+              </li>              
             ))}
           </ul>
         </>
