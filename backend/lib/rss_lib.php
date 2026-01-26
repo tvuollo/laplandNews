@@ -169,9 +169,55 @@ function isFileFresh(string $path, int $ttlSeconds): bool
     return $age >= 0 && $age <= $ttlSeconds;
 }
 
+function cleanSummaryText(string $htmlOrText, int $maxLen): ?string
+{
+    $text = trim($htmlOrText);
+    if ($text === '') return null;
+
+    // Strip HTML tags (RSS descriptions often contain HTML)
+    $text = strip_tags($text);
+
+    // Decode entities (&amp; etc.)
+    $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+    // Normalize whitespace
+    $text = preg_replace('/\s+/u', ' ', trim($text));
+    if ($text === '' || $text === null) return null;
+
+    // Truncate safely
+    if ($maxLen > 0 && mb_strlen($text, 'UTF-8') > $maxLen) {
+        $text = mb_substr($text, 0, $maxLen, 'UTF-8');
+        $text = rtrim($text);
+        $text .= '…';
+    }
+
+    return $text;
+}
+
+function extractRssSummary(SimpleXMLElement $item, int $maxLen): ?string
+{
+    // Prefer <description>
+    $desc = trim((string)($item->description ?? ''));
+    if ($desc !== '') {
+        return cleanSummaryText($desc, $maxLen);
+    }
+
+    // Fallback: content:encoded (some feeds)
+    $contentNs = $item->children('http://purl.org/rss/1.0/modules/content/');
+    if ($contentNs && isset($contentNs->encoded)) {
+        $encoded = trim((string)$contentNs->encoded);
+        if ($encoded !== '') {
+            return cleanSummaryText($encoded, $maxLen);
+        }
+    }
+
+    return null;
+}
+
 /**
  * Parse RSS 2.0 -> common item model.
  * Keeps it headline-oriented: title + url + publishedAt + categories.
+ * Added summary as well.
  */
 function parseRssToItems(string $xmlString, array $source): array
 {
@@ -187,6 +233,9 @@ function parseRssToItems(string $xmlString, array $source): array
     if (!$channel) {
         throw new RuntimeException("Unexpected RSS format (missing channel).");
     }
+
+    $includeSummary = (bool)($source['includeSummary'] ?? false);
+    $summaryMaxLen  = (int)($source['summaryMaxLen'] ?? 240);
 
     $items = [];
     foreach ($channel->item ?? [] as $item) {
@@ -211,17 +260,24 @@ function parseRssToItems(string $xmlString, array $source): array
 
         $canonUrl = canonicalizeUrl($link);
 
+        $summary = null;
+        if ($includeSummary) {
+            $summary = extractRssSummary($item, $summaryMaxLen);
+        }
+
         $items[] = [
-            'id'          => sha1($canonUrl),
-            'title'       => $title,
-            'url'         => $link,
-            'canonicalUrl'=> $canonUrl,
-            'publishedAt' => $publishedAt,
-            'categories'  => $categories,
-            'sourceId'    => (string)$source['id'],
-            'sourceName'  => (string)$source['name'],
-            'bucket'      => (string)($source['bucket'] ?? 'default'),
-            'lang'        => (string)($source['lang'] ?? ''),
+            'id'           => sha1($canonUrl),
+            'title'        => $title,
+            'url'          => $link,
+            'canonicalUrl' => $canonUrl,
+            'publishedAt'  => $publishedAt,
+            'categories'   => $categories,
+            'summary'      => $summary, // <-- new
+
+            'sourceId'     => (string)$source['id'],
+            'sourceName'   => (string)$source['name'],
+            'bucket'       => (string)($source['bucket'] ?? 'default'),
+            'lang'         => (string)($source['lang'] ?? ''),
         ];
     }
 
@@ -250,6 +306,7 @@ function mergeItemsByCanonicalUrl(array $allItems): array
                 'categories'  => $it['categories'] ?? [],
                 'bucket'      => $it['bucket'] ?? 'default',
                 'lang'        => $it['lang'] ?? '',
+                'summary' => $it['summary'] ?? null,
                 'sources'     => [
                     [
                         'id'   => $it['sourceId'],
@@ -278,6 +335,17 @@ function mergeItemsByCanonicalUrl(array $allItems): array
         // Merge categories
         $cats = array_merge($map[$key]['categories'] ?? [], $it['categories'] ?? []);
         $map[$key]['categories'] = array_values(array_unique(array_filter($cats)));
+
+        // summary: prefer a non-null, longer summary
+        $cur = $map[$key]['summary'] ?? null;
+        $new = $it['summary'] ?? null;
+        if (($cur === null || $cur === '') && ($new !== null && $new !== '')) {
+            $map[$key]['summary'] = $new;
+        } elseif ($cur !== null && $new !== null) {
+            if (mb_strlen($new, 'UTF-8') > mb_strlen($cur, 'UTF-8')) {
+                $map[$key]['summary'] = $new;
+            }
+        }
 
         // publishedAt: prefer non-null; if both non-null, keep the newest? (breakfast feed wants newest)
         $a = $map[$key]['publishedAt'];

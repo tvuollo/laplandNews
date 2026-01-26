@@ -15,6 +15,7 @@ export interface NewsItem {
     bucket: string;  // e.g. "lapland"
     lang: string;    // e.g. "fi"
     sources: SourceRef[]; // merged sources
+    summary?: string | null;
 }
 
 export interface NewsApiResponse {

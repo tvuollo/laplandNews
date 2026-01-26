@@ -8,7 +8,7 @@ export default function App() {
 
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: 16, fontFamily: "system-ui" }}>
-      <h1>Breakfast News</h1>
+      <h1>Lapland News</h1>
 
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
         <button onClick={() => setQuery({})}>All</button>
@@ -41,6 +41,7 @@ export default function App() {
                 </a>
 
                 <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>
+                  {item.summary && <p>{item.summary}</p>}
                   {item.publishedAt ? new Date(item.publishedAt).toLocaleString() : "—"} •{" "}
                   {item.sources.map((s) => s.name).join(", ")}
                 </div>

@@ -29,8 +29,12 @@ function isSourceRefArray(v: unknown): v is Array<{ id: string; name: string }> 
 }
 
 function isNewsItem(v: unknown): v is NewsItem {
+    if (!isObject(v)) return false;
+
+    const summaryOk =
+        !("summary" in v) || v.summary === null || typeof v.summary === "string";
+
     return (
-        isObject(v) &&
         isString(v.id) &&
         isString(v.title) &&
         isString(v.url) &&
@@ -39,7 +43,8 @@ function isNewsItem(v: unknown): v is NewsItem {
         isStringArray(v.categories) &&
         isString(v.bucket) &&
         isString(v.lang) &&
-        isSourceRefArray(v.sources)
+        isSourceRefArray(v.sources) &&
+        summaryOk
     );
 }
 
