@@ -9,7 +9,13 @@ return [
         'bucket' => 'lapland',
         'lang'   => 'fi',
     ],
-
+    [
+        'id'     => 'lapinkansa_lappi',
+        'name'   => 'Lapin Kansa – Lappi',
+        'rssUrl' => 'https://www.lapinkansa.fi/feedit/rss/managed-listing/lappi/',
+        'bucket' => 'lapland',
+        'lang'   => 'fi',
+    ],
     // Add more feeds later like this:
     // [
     //   'id' => 'rovaniemi_city',
