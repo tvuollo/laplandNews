@@ -16,7 +16,7 @@ const NewsListItem = ({ Item }: NewsListItemProps) => {
   return (
     <div className="newsListItem">
       <a className="newsListItem__title" href={Item.url} target="_blank" rel="noreferrer">
-        {Item.title} &rsaquo;
+        {Item.title}
       </a>
 
       {Item.summary && <p className="newsListItem__summary">{Item.summary}</p>}
