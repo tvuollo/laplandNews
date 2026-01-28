@@ -70,6 +70,22 @@ withLock($lockFile, function () use ($sources, $feedsDir, $allCache) {
 
     $merged = mergeItemsByCanonicalUrl($allItems);
 
+    // Hide items older than 30 days (based on publishedAt)
+    $maxAgeDays = 30;
+    $cutoffTs = time() - ($maxAgeDays * 24 * 60 * 60); // 30 days in seconds
+
+    $merged = array_values(array_filter($merged, function ($it) use ($cutoffTs) {
+        $p = $it['publishedAt'] ?? null;
+
+        // If missing/invalid date, keep it (or return false if you prefer to hide undated items too)
+        if ($p === null || $p === '') return true;
+
+        $ts = strtotime($p);
+        if ($ts === false) return true;
+
+        return $ts >= $cutoffTs;
+    }));
+
     $payload = [
         'fetchedAt'     => date(DATE_ATOM),
         'ttlSeconds'    => TTL_SECONDS,

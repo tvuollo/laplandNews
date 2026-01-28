@@ -29,7 +29,7 @@ export default function App() {
       {!loading && data && (
         <>
           <p>
-            Updated: {data.fetchedAt} • Items: {data.itemsCount} • Sources: {data.sourcesCount}
+            Updated: {new Date(data.fetchedAt).toLocaleString().replaceAll("/", ".")} • Items: {data.itemsCount} • Sources: {data.sourcesCount}
           </p>
 
           {data.errors.length > 0 && (
