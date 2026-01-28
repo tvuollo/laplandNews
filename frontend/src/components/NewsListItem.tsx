@@ -22,7 +22,7 @@ const NewsListItem = ({ Item }: NewsListItemProps) => {
       {Item.summary && <p className="newsListItem__summary">{Item.summary}</p>}
       <div className="newsListItem__meta">
         <span className="newsListItem__date">{Item.publishedAt ? [returnWeekday(Item.publishedAt), new Date(Item.publishedAt).toLocaleString().replaceAll("/", ".")].join(" ") : ""}</span>
-        <span key={Item.sources[0].id} className="newsListItem__tag">{Item.sources[0].name}</span>
+        <span key={Item.sources[0].id} className={["newsListItem__tag", `newsListItem__tag--${Item.sources[0].id}`].join(" ")}>{Item.sources[0].name}</span>
       </div>
     </div>
   );

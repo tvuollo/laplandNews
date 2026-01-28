@@ -37,7 +37,7 @@
 }
 
 .newsListItem__tag {
-    background-color: #3399ff;
+    background-color: #5a6979;
     border-radius: 1rem;
     color: #fff;
     display: inline-block;
@@ -45,4 +45,21 @@
     line-height: 1em;
     padding: .25rem .5rem .3rem;
     vertical-align: middle;
+}
+
+.newsListItem__tag--yle_lappi,
+.newsListItem__tag--yle_rovaniemi {
+    background-color: #03a1b2;
+}
+
+.newsListItem__tag--rovaniemenkaupunki {
+    background-color: #e20d18;
+}
+
+.newsListItem__tag--lapinkansa_lappi {
+    background-color: #0075bf;
+}
+
+.newsListItem__tag--lapinpoliisilaitos {
+    background-color: #06377b;
 }
