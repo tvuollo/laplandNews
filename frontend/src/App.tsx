@@ -14,9 +14,13 @@ export default function App() {
 
       <div>
         <button onClick={() => setQuery({})}>All</button>
-        <button onClick={() => setQuery({ bucket: "lapland" })}>Lapland</button>
+        <button onClick={() => setQuery({ bucket: "lapland" })}>Lappi</button>
+        <button onClick={() => setQuery({ bucket: "rovaniemi" })}>Rovaniemi</button>
         <button onClick={() => setQuery({ source: "yle_lappi" })}>Yle Lappi</button>
+        <button onClick={() => setQuery({ source: "yle_rovaniemi" })}>Yle Rovaniemi</button>
         <button onClick={() => setQuery({ source: "lapinkansa_lappi" })}>Lapin Kansa – Lappi</button>
+        <button onClick={() => setQuery({ source: "rovaniemenkaupunki" })}>Rovaniemen kaupunki</button>
+        <button onClick={() => setQuery({ source: "lapinpoliisilaitos" })}>Lapin Poliisilaitos</button>
       </div>
 
       {loading && <p>Loading…</p>}
@@ -39,7 +43,7 @@ export default function App() {
             {data.items.map((item) => (
               <li className="newsList__li" key={item.id}>
                 <NewsListItem key={item.id} Item={item} />
-              </li>              
+              </li>
             ))}
           </ul>
         </>

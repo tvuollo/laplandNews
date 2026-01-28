@@ -6,16 +6,23 @@ interface NewsListItemProps {
 }
 
 const NewsListItem = ({ Item }: NewsListItemProps) => {
+  const weekdays = ["Sunnuntai", "Maanantai", "Tiistai", "Keskiviikko", "Torstai", "Perjantai", "Lauantai", "Sunnuntai"];
+
+  const returnWeekday = (DateString: string) => {
+    const day = new Date(DateString).getDay();
+    return weekdays[day];
+  };
+
   return (
     <div className="newsListItem">
       <a className="newsListItem__title" href={Item.url} target="_blank" rel="noreferrer">
         {Item.title} &rsaquo;
       </a>
 
-      {Item.summary && <p>{Item.summary}</p>}
+      {Item.summary && <p className="newsListItem__summary">{Item.summary}</p>}
       <div className="newsListItem__meta">
-        <span className="newsListItem__date">{Item.publishedAt ? new Date(Item.publishedAt).toLocaleString().replaceAll("/", ".") : "—"}</span>
-        {Item.sources.map((s) => (<span key={s.id} className="newsListItem__tag">{s.name}</span>))}
+        <span className="newsListItem__date">{Item.publishedAt ? [returnWeekday(Item.publishedAt), new Date(Item.publishedAt).toLocaleString().replaceAll("/", ".")].join(" ") : ""}</span>
+        <span key={Item.sources[0].id} className="newsListItem__tag">{Item.sources[0].name}</span>
       </div>
     </div>
   );
