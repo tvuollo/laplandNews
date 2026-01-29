@@ -5,14 +5,14 @@ import NewsListItem from "./components/NewsListItem";
 import "./App.css";
 
 export default function App() {
-  const [query, setQuery] = useState<NewsQuery>({ bucket: "lapland" });
+  const [query, setQuery] = useState<NewsQuery>({});
   const { data, error, loading } = useNews(query);
 
   return (
     <div className="app">
-      <h1>Lapland News</h1>
+      <h1>Uutisia Lapista</h1>
 
-      <div>
+      <div style={{ display: "none" }}>
         <button onClick={() => setQuery({})}>All</button>
         <button onClick={() => setQuery({ bucket: "lapland" })}>Lappi</button>
         <button onClick={() => setQuery({ bucket: "rovaniemi" })}>Rovaniemi</button>
@@ -23,13 +23,13 @@ export default function App() {
         <button onClick={() => setQuery({ source: "lapinpoliisilaitos" })}>Lapin Poliisilaitos</button>
       </div>
 
-      {loading && <p>Loading…</p>}
+      {loading && <p>Haetaan uutisia...</p>}
       {error && <p>{error}</p>}
 
       {!loading && data && (
         <>
           <p>
-            Updated: {new Date(data.fetchedAt).toLocaleString().replaceAll("/", ".")} • Items: {data.itemsCount} • Sources: {data.sourcesCount}
+            <small>Päivitetty: {new Date(data.fetchedAt).toLocaleString().replaceAll("/", ".")}</small>
           </p>
 
           {data.errors.length > 0 && (
