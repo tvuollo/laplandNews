@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 
+// PHP < 8 compatibility (cron/CLI on some hosts)
+if (!function_exists('str_starts_with')) {
+    function str_starts_with(string $haystack, string $needle): bool {
+        return $needle === '' || strncmp($haystack, $needle, strlen($needle)) === 0;
+    }
+}
+
 function ensureDir(string $dir): void
 {
     if (!is_dir($dir)) {
